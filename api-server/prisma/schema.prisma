@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model MoviesActors {
+  movie_id Int
+  actor_id Int
+  movie    Movie @relation(fields: [movie_id], references: [movie_id])
+  actor    Actor @relation(fields: [actor_id], references: [actor_id])
+
+  @@id([movie_id, actor_id])
+  @@map("movies_actors")
+}
+
+model Movie {
+  movie_id        Int           @id @default(autoincrement())
+  movie_name      String        @db.VarChar(100)
+  movie_length    Int?
+  movie_lang      String        @db.VarChar(20)
+  age_certificate String        @db.VarChar(10)
+  release_date    DateTime?
+  director_id     Int
+  director        Director      @relation(fields: [director_id], references: [director_id])
+  revenues        MoviesRevenues[]
+  actors          MoviesActors[]
+
+  @@map("movies")
+}
+
+model Actor {
+  actor_id       Int           @id @default(autoincrement())
+  first_name     String        @db.VarChar(150)
+  last_name      String        @db.VarChar(150)
+  gender         String?       @db.Char(100)
+  date_of_birth  DateTime?
+  add_date       DateTime?
+  update_date    DateTime?
+  movies         MoviesActors[]
+
+  @@map("actors")
+}
+
+model Director {
+  director_id   Int       @id @default(autoincrement())
+  first_name    String    @db.VarChar(150)
+  last_name     String    @db.VarChar(150)
+  date_of_birth DateTime?
+  nationality   String    @db.VarChar(20)
+  add_date      DateTime?
+  update_date   DateTime?
+
+  movies        Movie[]
+
+  @@map("directors")
+}
+
+model MoviesRevenues {
+  revenue_id             Int       @id @default(autoincrement())
+  movie_id               Int
+  movie                  Movie     @relation(fields: [movie_id], references: [movie_id])
+  revenues_domestic      Float?
+  revenues_international Float?
+
+  @@map("movies_revenues")
+}
